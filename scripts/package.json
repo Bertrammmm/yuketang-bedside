@@ -1,0 +1,13 @@
+{
+  "name": "yuketang-helper",
+  "version": "1.0.0",
+  "private": true,
+  "description": "卧床看课助手：自动点播放/下一节，弹题由用户口述、助手代点",
+  "main": "yuketang.js",
+  "scripts": {
+    "start": "node yuketang.js"
+  },
+  "dependencies": {
+    "playwright-core": "^1.49.0"
+  }
+}
