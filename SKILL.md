@@ -56,13 +56,22 @@ curl -s -X POST http://127.0.0.1:7862/eval -H "Content-Type: application/json" -
 
 **值守的持续驱动**：普通一问一答的对话不会让助手主动巡检。建议用户用 `/goal` 设会话目标（如 `/goal 请陪我看完XX课全部视频，自动连播，弹题按规则处理`），目标激活期间助手会在轮次间被持续唤醒执行巡检，无需用户逐步指令。用户没设 goal 时，提醒一次即可。
 
-## 3. 雨课堂页面规律（实测）
+## 3. 页面规律（实测）
+
+**学堂在线（xuetangx，含 degreecourse 学分课平台）**
+
+- 视频页：`/learn/space/<sig>/<course>/<cid>/video/<vid>`；登录用微信扫码（浏览器点右上"登录"弹窗即扫码页）
+- 知识点目录 `.menu-content-item`，当前项 `is-active`，条目文本以 **视频/作业/习题/考试** 前缀区分。**自动下一节 = 点 is-active 之后下一个非"作业/习题/考试"条目**
+- 通用 `<video>` 逻辑直接生效（自动续播开箱即用）
+
+**雨课堂（yuketang.cn）**
 
 - 视频页：`/ai-workspace/lms-graph/<classroom>/video/<id>`，左侧目录 `.leaf-item`，当前项带 `is-active`，条目 `.leaf-item-tag` 为 视频/作业/考试。**自动下一节 = 点 is-active 之后下一个 tag=视频 的条目，跳过作业并记日志**
 - 学习内容目录：`/pro/lms/<sig>/<classroom>/studycontent?...`（在 iframe 里；**把 iframe 的 src 当顶层 URL 直接 /goto 打开**即可绕开嵌套）
 - 点目录课时通常**新开标签页**：助手会自动跟随（ctx 'page' 事件）
 - 习题页：`/v2/web/iframe-exercise/<classroom>/<id>`（同样可顶层打开）；**题目 DOM 中文被字形混淆，innerText 是乱码——必须 /shot 截图视觉读题**，作答时按选项序号点击
-- 弹题检测：可见"提交/确定"按钮 + 同容器 ≥2 个短选项；"继续观看/我知道了"类单按钮弹窗直接自动点掉
+
+**通用**：弹题检测——可见"提交/确定"按钮 + 同容器 ≥2 个短选项；"继续观看/我知道了"类单按钮弹窗直接自动点掉
 
 ## 4. 已知坑
 
