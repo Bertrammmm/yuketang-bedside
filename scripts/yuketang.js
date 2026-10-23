@@ -149,7 +149,37 @@ async function clickNext() {
         mItems[j].click();
         return '学堂在线:' + label + (skipped.length ? '（跳过: ' + skipped.join('、') + '）' : '');
       }
-      return 'NO_MORE:学堂在线目录到末尾' + (skipped.length ? '（后面只剩: ' + skipped.join('、') + '）' : '');
+      // 可见项用尽：沿 DOM 逐级找相邻的分组，展开折叠的或点其第一个视频项
+      let g = mItems[mIdx].closest('.lesson-graph-menu');
+      while (g) {
+        let sib = g.nextElementSibling;
+        while (sib) {
+          if (sib.classList && sib.classList.contains('lesson-graph-menu')) {
+            const items2 = [...sib.querySelectorAll('.menu-content-item')].filter(vis);
+            const nonHW = items2.find(
+              (e) => !/^(作业|习题|考试|随堂测验)/.test(txt(e))
+            );
+            if (nonHW) {
+              nonHW.click();
+              return '学堂在线(下组):' + txt(nonHW).slice(0, 40);
+            }
+            if (items2.length) {
+              skipped.push(txt(items2[0]).slice(0, 20));
+            } else {
+              const title = sib.querySelector('.menu-title');
+              if (title) {
+                title.click();
+                return '展开分组:' + txt(title).slice(0, 30);
+              }
+            }
+          }
+          sib = sib.nextElementSibling;
+        }
+        g = g.parentElement ? g.parentElement.closest('.lesson-graph-menu') : null;
+      }
+      return (
+        'NO_MORE:学堂在线目录到末尾' + (skipped.length ? '（后面只剩: ' + skipped.join('、') + '）' : '')
+      );
     }
 
     // 策略3：雨课堂学习空间目录 .leaf-item —— is-active 的下一个"视频"条目；
