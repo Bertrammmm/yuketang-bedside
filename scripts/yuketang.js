@@ -135,7 +135,24 @@ async function clickNext() {
       return '按钮:' + txt(btn);
     }
 
-    // 策略2：学习空间目录 .leaf-item —— is-active 的下一个"视频"条目；
+    // 策略2：学堂在线(xuetangx)知识点目录 .menu-content-item，跳过 作业/习题/考试
+    const mItems = [...document.querySelectorAll('.menu-content-item')].filter(vis);
+    const mIdx = mItems.findIndex((e) => /(^| )is-active( |$)/.test(e.className + ''));
+    if (mIdx >= 0) {
+      const skipped = [];
+      for (let j = mIdx + 1; j < mItems.length; j++) {
+        const label = txt(mItems[j]).slice(0, 40);
+        if (/^(作业|习题|考试|随堂测验)/.test(label)) {
+          skipped.push(label);
+          continue;
+        }
+        mItems[j].click();
+        return '学堂在线:' + label + (skipped.length ? '（跳过: ' + skipped.join('、') + '）' : '');
+      }
+      return 'NO_MORE:学堂在线目录到末尾' + (skipped.length ? '（后面只剩: ' + skipped.join('、') + '）' : '');
+    }
+
+    // 策略3：雨课堂学习空间目录 .leaf-item —— is-active 的下一个"视频"条目；
     // 遇到 作业/考试 等非视频条目则停下等待用户
     const leaves = [...document.querySelectorAll('.leaf-item')].filter(vis);
     const idx = leaves.findIndex((e) => /(^| )is-active( |$)/.test(e.className + ''));
@@ -155,7 +172,7 @@ async function clickNext() {
       return 'NO_MORE:本课目录已到末尾' + (skipped.length ? '（后面只剩: ' + skipped.join('、') + '）' : '');
     }
 
-    // 策略3：通用目录列表（旧版页面兜底）
+    // 策略4：通用目录列表（旧版页面兜底）
     const items = [
       ...document.querySelectorAll(
         '[class*="lesson" i] li, [class*="catalog" i] li, [class*="chapter" i] li, [class*="task" i] li'
